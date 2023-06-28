@@ -1,22 +1,33 @@
 import { useState } from "react";
 import server from "./server";
+import signMesage from "./utils/signMessage";
+
 
 function Transfer({ address, setBalance }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
+
+ // console.log(hashMessage);
   const setValue = (setter) => (evt) => setter(evt.target.value);
 
   async function transfer(evt) {
     evt.preventDefault();
 
     try {
+      const message = `Send ${sendAmount} to ${recipient}`;
+      const signedMesage = await signMesage(message , privateKey);
+      console.log("Signed Message: ", signedMesage);
       const {
         data: { balance },
       } = await server.post(`send`, {
         sender: address,
         amount: parseInt(sendAmount),
         recipient,
+        signedMesage,
+        message,
+        privateKey,
+        
       });
       setBalance(balance);
     } catch (ex) {
